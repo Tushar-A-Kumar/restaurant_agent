@@ -1,0 +1,79 @@
+{
+  "menu": [
+    {
+      "itemId": "m1",
+      "name": "Butter Chicken",
+      "price": 280,
+      "category": "main",
+      "stock": 15,
+      "prepTimeMinutes": 12
+    },
+    {
+      "itemId": "m2",
+      "name": "Paneer Tikka",
+      "price": 220,
+      "category": "starter",
+      "stock": 8,
+      "prepTimeMinutes": 8
+    },
+    {
+      "itemId": "m3",
+      "name": "Masala Dosa",
+      "price": 120,
+      "category": "main",
+      "stock": 3,
+      "prepTimeMinutes": 10
+    },
+    {
+      "itemId": "m4",
+      "name": "Mango Lassi",
+      "price": 80,
+      "category": "drink",
+      "stock": 20,
+      "prepTimeMinutes": 3
+    },
+    {
+      "itemId": "m5",
+      "name": "Gulab Jamun",
+      "price": 90,
+      "category": "dessert",
+      "stock": 2,
+      "prepTimeMinutes": 5
+    }
+  ],
+  "orders": [
+    {
+      "orderId": "o1",
+      "tableNo": 3,
+      "items": ["m1", "m4"],
+      "status": "pending",
+      "createdAt": "2024-01-01T10:00:00",
+      "priority": "normal",
+      "notes": ""
+    },
+    {
+      "orderId": "o2",
+      "tableNo": 5,
+      "items": ["m2", "m3"],
+      "status": "preparing",
+      "createdAt": "2024-01-01T09:40:00",
+      "priority": "normal",
+      "notes": ""
+    },
+    {
+      "orderId": "o3",
+      "tableNo": 1,
+      "items": ["m5"],
+      "status": "pending",
+      "createdAt": "2024-01-01T09:30:00",
+      "priority": "normal",
+      "notes": "no sugar please"
+    }
+  ],
+  "staff": {
+    "currentChefs": 2,
+    "currentWaiters": 3
+  },
+  "restock_flags": [],
+  "agent_log": []
+}
