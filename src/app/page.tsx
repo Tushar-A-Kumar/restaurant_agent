@@ -21,6 +21,14 @@ export default function Dashboard() {
     setClockedInCount(count);
   }, []);
 
+  const handleApprove = (id: string) => {
+    setLogs(prev => prev.filter(l => l.id !== id));
+  };
+
+  const handleOverride = (id: string) => {
+    setLogs(prev => prev.map(l => l.id === id ? { ...l, message: 'OPERATOR OVERRIDE: ' + l.message } : l));
+  };
+
   const startEdit = (item: any) => {
     setEditingId(item.id);
     setTempStock(item.currentStock);
@@ -151,7 +159,11 @@ export default function Dashboard() {
         </div>
 
         <div className="right-panel">
-          <AgentLog logs={logs} />
+          <AgentLog 
+            logs={logs} 
+            onApprove={handleApprove}
+            onOverride={handleOverride}
+          />
         </div>
       </div>
 

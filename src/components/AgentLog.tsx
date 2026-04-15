@@ -9,7 +9,11 @@ interface LogEntry {
   type: string;
 }
 
-const AgentLog: React.FC<{ logs: LogEntry[] }> = ({ logs }) => {
+const AgentLog: React.FC<{ 
+  logs: LogEntry[], 
+  onApprove?: (id: string) => void,
+  onOverride?: (id: string) => void
+}> = ({ logs, onApprove, onOverride }) => {
   return (
     <div className="agent-log glass">
       <div className="header">
@@ -23,8 +27,18 @@ const AgentLog: React.FC<{ logs: LogEntry[] }> = ({ logs }) => {
             <span className="message">{log.message}</span>
             {log.type === 'action' && (
               <div className="actions">
-                <button className="btn-approve">Approve</button>
-                <button className="btn-override">Override</button>
+                <button 
+                  className="btn-approve"
+                  onClick={() => onApprove?.(log.id)}
+                >
+                  Approve
+                </button>
+                <button 
+                  className="btn-override"
+                  onClick={() => onOverride?.(log.id)}
+                >
+                  Override
+                </button>
               </div>
             )}
           </div>
