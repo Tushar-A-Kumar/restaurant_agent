@@ -32,6 +32,15 @@ export default function InventoryPage() {
   const [orders, setOrders] = useState<PurchaseOrder[]>(MOCK_POS);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempStock, setTempStock] = useState<number>(0);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newItem, setNewItem] = useState({
+    name: '',
+    category: 'Produce',
+    minThreshold: 0,
+    currentStock: 0,
+    unit: 'kg',
+    costPerUnit: 0
+  });
 
   const handleApprove = (id: string) => {
     setOrders(prev => prev.map(po => po.id === id ? { ...po, status: 'approved' } : po));
@@ -49,6 +58,17 @@ export default function InventoryPage() {
   const saveStock = (id: string) => {
     setItems(prev => prev.map(item => item.id === id ? { ...item, currentStock: tempStock } : item));
     setEditingId(null);
+  };
+
+  const addItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    const item: InventoryItem = {
+      ...newItem,
+      id: `item-${Date.now()}`
+    };
+    setItems(prev => [item, ...prev]);
+    setShowAddForm(false);
+    setNewItem({ name: '', category: 'Produce', minThreshold: 0, currentStock: 0, unit: 'kg', costPerUnit: 0 });
   };
 
   const depletionPct = (item: InventoryItem) =>
@@ -72,7 +92,74 @@ export default function InventoryPage() {
           <div className="card glass">
             <div className="card-header">
               <h2>Live Stock Levels</h2>
+              <button 
+                className="add-btn" 
+                onClick={() => setShowAddForm(!showAddForm)}
+              >
+                {showAddForm ? '✕ Close' : '+ Add Item'}
+              </button>
             </div>
+
+            {showAddForm && (
+              <form className="add-form" onSubmit={addItem}>
+                <div className="form-grid">
+                  <div className="field">
+                    <label>Item Name</label>
+                    <input 
+                      required
+                      placeholder="e.g. Sushi Rice"
+                      value={newItem.name}
+                      onChange={e => setNewItem({...newItem, name: e.target.value})}
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Category</label>
+                    <select value={newItem.category} onChange={e => setNewItem({...newItem, category: e.target.value})}>
+                      <option>Produce</option>
+                      <option>Protein</option>
+                      <option>Dairy</option>
+                      <option>Pantry</option>
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>Min Threshold</label>
+                    <input 
+                      type="number"
+                      required
+                      value={newItem.minThreshold}
+                      onChange={e => setNewItem({...newItem, minThreshold: Number(e.target.value)})}
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Current Stock</label>
+                    <input 
+                      type="number"
+                      required
+                      value={newItem.currentStock}
+                      onChange={e => setNewItem({...newItem, currentStock: Number(e.target.value)})}
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Unit</label>
+                    <input 
+                      placeholder="kg, L, pcs"
+                      value={newItem.unit}
+                      onChange={e => setNewItem({...newItem, unit: e.target.value})}
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Cost / Unit (₹)</label>
+                    <input 
+                      type="number"
+                      value={newItem.costPerUnit}
+                      onChange={e => setNewItem({...newItem, costPerUnit: Number(e.target.value)})}
+                    />
+                  </div>
+                </div>
+                <button type="submit" className="submit-add-btn">Create Item</button>
+              </form>
+            )}
+
             <div className="stock-list">
               {items.map(item => {
                 const pct = depletionPct(item);
@@ -230,6 +317,80 @@ export default function InventoryPage() {
           background: var(--secondary-glow);
           padding: 4px 10px;
           border-radius: 8px;
+        }
+
+        .add-btn {
+          background: var(--primary-glow);
+          color: var(--primary);
+          border: 1px solid rgba(16, 185, 129, 0.3);
+          padding: 6px 14px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 700;
+          transition: all 0.2s;
+        }
+
+        .add-btn:hover {
+          background: var(--primary);
+          color: black;
+        }
+
+        .add-form {
+          margin-bottom: 32px;
+          padding: 20px;
+          background: rgba(255,255,255,0.02);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+          gap: 16px;
+          margin-bottom: 20px;
+        }
+
+        .field {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .field label {
+          font-size: 11px;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .field input, .field select {
+          background: rgba(255,255,255,0.05);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 8px 10px;
+          color: white;
+          font-size: 13px;
+          outline: none;
+        }
+
+        .field input:focus {
+          border-color: var(--primary);
+        }
+
+        .submit-add-btn {
+          width: 100%;
+          background: var(--primary);
+          color: black;
+          padding: 10px;
+          border-radius: 8px;
+          font-weight: 700;
+          font-size: 14px;
         }
 
         .stock-list {
