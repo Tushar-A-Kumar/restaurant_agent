@@ -11,8 +11,11 @@ const DEMO_CREDENTIALS = [
 
 export default function LoginPage() {
   const router = useRouter();
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [role, setRole] = useState('Labour');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +27,11 @@ export default function LoginPage() {
 
     await new Promise(r => setTimeout(r, 800)); // simulate network
 
-    const user = DEMO_CREDENTIALS.find(
+    // Check local storage for registered users
+    const registeredUsers = JSON.parse(localStorage.getItem('kitchenos_users') || '[]');
+    const allUsers = [...DEMO_CREDENTIALS, ...registeredUsers];
+
+    const user = allUsers.find(
       c => c.email === email && c.password === password
     );
 
@@ -33,12 +40,34 @@ export default function LoginPage() {
       router.push('/');
       router.refresh();
     } else {
-      setError('Invalid credentials. Try admin@kitchenos.com / admin123');
+      setError('Invalid credentials. Check your details or sign up.');
       setLoading(false);
     }
   };
 
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    await new Promise(r => setTimeout(r, 800));
+
+    const registeredUsers = JSON.parse(localStorage.getItem('kitchenos_users') || '[]');
+    if (registeredUsers.some((u: any) => u.email === email) || DEMO_CREDENTIALS.some(u => u.email === email)) {
+      setError('User already exists');
+      setLoading(false);
+      return;
+    }
+
+    const newUser = { name, email, password, role };
+    localStorage.setItem('kitchenos_users', JSON.stringify([...registeredUsers, newUser]));
+    
+    // Auto login
+    document.cookie = `kitchenos_auth=${JSON.stringify({ email, role, name })}; path=/; max-age=86400`;
+    router.push('/');
+    router.refresh();
+  };
+
   const fillDemo = () => {
+    setMode('login');
     setEmail('admin@kitchenos.com');
     setPassword('admin123');
     setError('');
@@ -63,11 +92,28 @@ export default function LoginPage() {
         <div className="divider" />
 
         <div className="card-header">
-          <h1>Admin Sign In</h1>
-          <p>Access the Operator Command Centre</p>
+          <h1>{mode === 'login' ? 'Admin Sign In' : 'Create Account'}</h1>
+          <p>{mode === 'login' ? 'Access the Operator Command Centre' : 'Join the KitchenOS network'}</p>
         </div>
 
-        <form onSubmit={handleLogin} className="form">
+        <form onSubmit={mode === 'login' ? handleLogin : handleSignup} className="form">
+          {mode === 'signup' && (
+            <div className="field">
+              <label htmlFor="name">Full Name</label>
+              <div className="input-wrap">
+                <span className="input-icon">👤</span>
+                <input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+            </div>
+          )}
+
           <div className="field">
             <label htmlFor="email">Email address</label>
             <div className="input-wrap">
@@ -107,6 +153,28 @@ export default function LoginPage() {
             </div>
           </div>
 
+          {mode === 'signup' && (
+            <div className="field">
+              <label htmlFor="role">Account Role</label>
+              <div className="role-selector">
+                <button 
+                  type="button" 
+                  className={`role-option ${role === 'GM' ? 'active' : ''}`}
+                  onClick={() => setRole('GM')}
+                >
+                  Admin
+                </button>
+                <button 
+                  type="button" 
+                  className={`role-option ${role === 'Labour' ? 'active' : ''}`}
+                  onClick={() => setRole('Labour')}
+                >
+                  Labour
+                </button>
+              </div>
+            </div>
+          )}
+
           {error && (
             <div className="error-banner">
               ⚠ {error}
@@ -121,14 +189,24 @@ export default function LoginPage() {
             {loading ? (
               <span className="spinner" />
             ) : (
-              'Sign In to KitchenOS'
+              mode === 'login' ? 'Sign In to KitchenOS' : 'Create Account'
             )}
           </button>
         </form>
 
-        <button className="demo-btn" onClick={fillDemo}>
-          ⚡ Fill demo credentials
-        </button>
+        <div className="toggle-mode">
+          {mode === 'login' ? (
+            <p>New to KitchenOS? <button onClick={() => setMode('signup')}>Create an account</button></p>
+          ) : (
+            <p>Already have an account? <button onClick={() => setMode('login')}>Sign In</button></p>
+          )}
+        </div>
+
+        {mode === 'login' && (
+          <button className="demo-btn" onClick={fillDemo}>
+            ⚡ Fill demo credentials
+          </button>
+        )}
 
         <div className="footer-note">
           <div className="secure-badge">🔒 Secure · Session expires in 24h</div>
@@ -407,6 +485,46 @@ export default function LoginPage() {
           color: #10b981;
           border-color: #10b981;
           background: rgba(16, 185, 129, 0.06);
+        }
+
+        .role-selector {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+          margin-top: 4px;
+        }
+
+        .role-option {
+          padding: 10px;
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #a1a1aa;
+          font-size: 13px;
+          font-weight: 600;
+          transition: all 0.2s;
+        }
+
+        .role-option.active {
+          background: var(--primary-glow);
+          border-color: #10b981;
+          color: #10b981;
+        }
+
+        .toggle-mode {
+          text-align: center;
+          font-size: 14px;
+          color: #71717a;
+        }
+
+        .toggle-mode button {
+          color: #10b981;
+          font-weight: 600;
+          margin-left: 4px;
+        }
+
+        .toggle-mode button:hover {
+          text-decoration: underline;
         }
 
         /* Footer */
