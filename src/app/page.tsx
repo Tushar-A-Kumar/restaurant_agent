@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import StatCard from '@/components/StatCard';
 import AgentLog from '@/components/AgentLog';
+import SalesChart from '@/components/SalesChart';
 import { MOCK_AGENT_LOGS, MOCK_INVENTORY, MOCK_PREP_LIST } from '@/lib/mock-data';
 
 export default function Dashboard() {
@@ -57,6 +58,8 @@ export default function Dashboard() {
         <StatCard label="Active Prep" value="65%" trend="on pace" trendType="neutral" />
         <StatCard label="Waste/Revenue" value="1.8%" trend="0.4%" trendType="positive" color="var(--error)" />
       </div>
+
+      <SalesChart />
 
       <div className="main-grid">
         <div className="left-panel">

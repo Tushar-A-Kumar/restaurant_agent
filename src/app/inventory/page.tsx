@@ -28,7 +28,10 @@ const MOCK_POS: PurchaseOrder[] = [
 ];
 
 export default function InventoryPage() {
+  const [items, setItems] = useState<InventoryItem[]>(MOCK_INVENTORY);
   const [orders, setOrders] = useState<PurchaseOrder[]>(MOCK_POS);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [tempStock, setTempStock] = useState<number>(0);
 
   const handleApprove = (id: string) => {
     setOrders(prev => prev.map(po => po.id === id ? { ...po, status: 'approved' } : po));
@@ -36,6 +39,16 @@ export default function InventoryPage() {
 
   const handleOverride = (id: string) => {
     setOrders(prev => prev.map(po => po.id === id ? { ...po, status: 'overridden' } : po));
+  };
+
+  const startEdit = (item: InventoryItem) => {
+    setEditingId(item.id);
+    setTempStock(item.currentStock);
+  };
+
+  const saveStock = (id: string) => {
+    setItems(prev => prev.map(item => item.id === id ? { ...item, currentStock: tempStock } : item));
+    setEditingId(null);
   };
 
   const depletionPct = (item: InventoryItem) =>
@@ -61,9 +74,10 @@ export default function InventoryPage() {
               <h2>Live Stock Levels</h2>
             </div>
             <div className="stock-list">
-              {MOCK_INVENTORY.map(item => {
+              {items.map(item => {
                 const pct = depletionPct(item);
                 const isCritical = item.currentStock < item.minThreshold;
+                const isEditing = editingId === item.id;
                 return (
                   <div key={item.id} className="stock-row">
                     <div className="stock-info">
@@ -80,9 +94,30 @@ export default function InventoryPage() {
                           }}
                         />
                       </div>
-                      <span className={`stock-val ${isCritical ? 'critical' : ''}`}>
-                        {item.currentStock} / {item.minThreshold} {item.unit}
-                      </span>
+                      <div className="stock-input-row">
+                        {isEditing ? (
+                          <div className="edit-controls">
+                            <input
+                              type="number"
+                              value={tempStock}
+                              onChange={(e) => setTempStock(Number(e.target.value))}
+                              className="stock-edit-input"
+                              autoFocus
+                            />
+                            <button onClick={() => saveStock(item.id)} className="save-btn">Save</button>
+                            <button onClick={() => setEditingId(null)} className="cancel-btn">✕</button>
+                          </div>
+                        ) : (
+                          <div className="display-controls">
+                            <span className={`stock-val ${isCritical ? 'critical' : ''}`}>
+                              {item.currentStock} / {item.minThreshold} {item.unit}
+                            </span>
+                            <button onClick={() => startEdit(item)} className="edit-icon-btn" title="Manual Override">
+                              ✎
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     {isCritical && <span className="alert-tag">LOW</span>}
                   </div>
@@ -240,6 +275,61 @@ export default function InventoryPage() {
 
         .stock-val { font-size: 11px; color: var(--text-muted); }
         .stock-val.critical { color: var(--error); }
+
+        .stock-input-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .display-controls {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .edit-controls {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .stock-edit-input {
+          width: 70px;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid var(--border);
+          border-radius: 4px;
+          padding: 2px 6px;
+          color: white;
+          font-size: 12px;
+        }
+
+        .save-btn {
+          font-size: 11px;
+          background: var(--primary);
+          color: black;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-weight: 700;
+        }
+
+        .cancel-btn {
+          font-size: 11px;
+          color: var(--text-muted);
+        }
+
+        .edit-icon-btn {
+          opacity: 0;
+          font-size: 12px;
+          color: var(--text-muted);
+          transition: opacity 0.2s;
+        }
+
+        .stock-row:hover .edit-icon-btn {
+          opacity: 1;
+        }
 
         .alert-tag {
           font-size: 10px;

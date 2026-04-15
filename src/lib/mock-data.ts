@@ -40,3 +40,22 @@ export const MOCK_AGENT_LOGS = [
   { id: 'l2', timestamp: new Date(Date.now() - 1000 * 60 * 14).toISOString(), message: 'Agent generated Purchase Order #8821 for 15kg [Fresh Salmon]. Awaiting GM approval.', type: 'action' },
   { id: 'l3', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), message: 'Prep Intelligence Engine adjusted [Wasabi Aioli] quantity (+2L) based on 10% increase in tonight\'s reservations.', type: 'info' },
 ];
+
+export const MOCK_SALES_DATA = [
+  { time: '08:00', sales: 1200 },
+  { time: '09:00', sales: 2400 },
+  { time: '10:00', sales: 3100 },
+  { time: '11:00', sales: 4800 },
+  { time: '12:00', sales: 9200 },
+  { time: '13:00', sales: 11500 },
+  { time: '14:00', sales: 8400 },
+  { time: '15:00', sales: 4200 },
+  { time: '16:00', sales: 3800 },
+  { time: '17:00', sales: 5600 },
+  { time: '18:00', sales: 12400 },
+  { time: '19:00', sales: 15800 },
+  { time: '20:00', sales: 14200 },
+  { time: '21:00', sales: 9600 },
+  { time: '22:00', sales: 6200 },
+  { time: '23:00', sales: 2100 },
+];
