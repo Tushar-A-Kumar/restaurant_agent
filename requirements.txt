@@ -1,0 +1,23 @@
+# KitchenOS | Autonomous Restaurant Operations
+# Dependency & Requirement Manifest
+
+# Core Framework
+next==16.2.3
+react==19.2.4
+react-dom==19.2.4
+
+# Development & Types
+typescript==5.*
+@types/node==20.*
+@types/react==19.*
+@types/react-dom==19.*
+eslint==9.*
+
+# System Requirements
+node-version>=20.0.0
+npm-version>=9.0.0
+
+# Build Engine
+turbopack==enabled
+style-system==styled-jsx
+auth-system==proxy-middleware
