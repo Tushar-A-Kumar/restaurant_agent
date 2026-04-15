@@ -9,6 +9,19 @@ import { MOCK_AGENT_LOGS, MOCK_INVENTORY, MOCK_PREP_LIST } from '@/lib/mock-data
 export default function Dashboard() {
   const [logs, setLogs] = useState(MOCK_AGENT_LOGS);
   const [isRunning, setIsRunning] = useState(false);
+  const [items, setItems] = useState(MOCK_INVENTORY);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [tempStock, setTempStock] = useState<number>(0);
+
+  const startEdit = (item: any) => {
+    setEditingId(item.id);
+    setTempStock(item.currentStock);
+  };
+
+  const saveStock = (id: string) => {
+    setItems(prev => prev.map(item => item.id === id ? { ...item, currentStock: tempStock } : item));
+    setEditingId(null);
+  };
 
   const runAgents = async () => {
     setIsRunning(true);
@@ -92,15 +105,39 @@ export default function Dashboard() {
               <button className="text-btn">Manage</button>
             </div>
             <div className="inventory-grid">
-              {MOCK_INVENTORY.filter(i => i.currentStock < i.minThreshold).map(item => (
-                <div key={item.id} className="inventory-alert-card">
-                  <div className="name">{item.name}</div>
-                  <div className="stock-info">
-                    <span className="current">{item.currentStock} {item.unit}</span>
-                    <span className="threshold"> / min {item.minThreshold} {item.unit}</span>
+              {items.filter(i => i.currentStock < i.minThreshold).map(item => {
+                const isEditing = editingId === item.id;
+                return (
+                  <div key={item.id} className="inventory-alert-card">
+                    <div className="alert-top">
+                      <div className="name">{item.name}</div>
+                      {!isEditing && (
+                        <button onClick={() => startEdit(item)} className="edit-btn-small">✎</button>
+                      )}
+                    </div>
+                    <div className="stock-info">
+                      {isEditing ? (
+                        <div className="dash-edit-wrap">
+                          <input 
+                            type="number" 
+                            value={tempStock} 
+                            onChange={e => setTempStock(Number(e.target.value))}
+                            className="dash-input"
+                            autoFocus
+                          />
+                          <button onClick={() => saveStock(item.id)} className="dash-save">Save</button>
+                          <button onClick={() => setEditingId(null)} className="dash-cancel">✕</button>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="current">{item.currentStock} {item.unit}</span>
+                          <span className="threshold"> / min {item.minThreshold} {item.unit}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -266,6 +303,53 @@ export default function Dashboard() {
         .inventory-alert-card .name {
           color: var(--error);
           margin-bottom: 4px;
+        }
+
+        .alert-top {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .edit-btn-small {
+          font-size: 10px;
+          opacity: 0.5;
+          transition: opacity 0.2s;
+        }
+
+        .inventory-alert-card:hover .edit-btn-small {
+          opacity: 1;
+        }
+
+        .dash-edit-wrap {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          margin-top: 4px;
+        }
+
+        .dash-input {
+          width: 50px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid var(--border);
+          border-radius: 4px;
+          color: white;
+          font-size: 11px;
+          padding: 2px 4px;
+        }
+
+        .dash-save {
+          background: var(--primary);
+          color: black;
+          font-size: 10px;
+          font-weight: 700;
+          padding: 2px 6px;
+          border-radius: 4px;
+        }
+
+        .dash-cancel {
+          font-size: 10px;
+          color: var(--text-muted);
         }
 
         .inventory-alert-card .stock-info {
