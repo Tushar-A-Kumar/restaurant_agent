@@ -15,6 +15,14 @@ const NAV_ITEMS = [
 const Sidebar = () => {
   const pathname = usePathname();
 
+  const router = useRouter();
+
+  const handleLogout = () => {
+    document.cookie = 'kitchenos_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    router.push('/login');
+    router.refresh();
+  };
+
   return (
     <aside className="sidebar glass">
       <div className="logo">
@@ -42,6 +50,10 @@ const Sidebar = () => {
             <span className="status-model">Claude 3.5 Sonnet</span>
           </div>
         </div>
+        <button onClick={handleLogout} className="logout-btn">
+          <span>Logout</span>
+          <span className="icon">⎆</span>
+        </button>
         <div className="restaurant-name">The Grand Plate</div>
       </div>
 
@@ -163,6 +175,26 @@ const Sidebar = () => {
         .status-model {
           font-size: 10px;
           color: var(--text-muted);
+        }
+
+        .logout-btn {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 10px 14px;
+          border-radius: var(--radius-md);
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--text-muted);
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid var(--border);
+          transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+          background: rgba(239, 68, 68, 0.05);
+          color: var(--error);
+          border-color: rgba(239, 68, 68, 0.2);
         }
 
         .restaurant-name {
